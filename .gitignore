@@ -1,0 +1,15 @@
+# IDE & System Files
+.idea/
+.vscode/
+*.DS_Store
+
+# Server Dependencies
+server/venv/
+server/__pycache__/
+
+# Client Dependencies
+client/node_modules/
+client/dist/
+
+# Log files
+*.log
