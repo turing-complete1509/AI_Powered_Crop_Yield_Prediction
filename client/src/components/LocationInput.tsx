@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ interface LocationInputProps {
 }
 
 const LocationInput = ({ onLocationSubmit }: LocationInputProps) => {
+  const { t } = useTranslation();
   const [district, setDistrict] = useState("");
   const [state, setState] = useState("");
 
@@ -21,19 +23,19 @@ const LocationInput = ({ onLocationSubmit }: LocationInputProps) => {
     <div className="py-16">
       <Card className="max-w-md mx-auto shadow-card">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl text-primary">Your Location</CardTitle>
+          <CardTitle className="text-2xl text-primary">{t('locationInput.title')}</CardTitle>
           <p className="text-muted-foreground">
-            Tell us where your farm is located
+            {t('locationInput.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <label htmlFor="district" className="block text-sm font-medium mb-2">
-              District *
+              {t('locationInput.districtLabel')}
             </label>
             <Input
               id="district"
-              placeholder="Enter your district"
+              placeholder={t('locationInput.districtPlaceholder')}
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
               className="transition-smooth focus:shadow-soft"
@@ -41,11 +43,11 @@ const LocationInput = ({ onLocationSubmit }: LocationInputProps) => {
           </div>
           <div>
             <label htmlFor="state" className="block text-sm font-medium mb-2">
-              State (Optional)
+              {t('locationInput.stateLabel')}
             </label>
             <Input
               id="state"
-              placeholder="Enter your state"
+              placeholder={t('locationInput.statePlaceholder')}
               value={state}
               onChange={(e) => setState(e.target.value)}
               className="transition-smooth focus:shadow-soft"
@@ -56,7 +58,7 @@ const LocationInput = ({ onLocationSubmit }: LocationInputProps) => {
             disabled={!district.trim()}
             className="w-full bg-gradient-field hover:shadow-glow transition-smooth"
           >
-            Continue
+            {t('locationInput.continue')}
           </Button>
         </CardContent>
       </Card>
