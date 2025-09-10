@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,12 +9,12 @@ interface CropSelectionProps {
 }
 
 const CropSelection = ({ onCropSubmit }: CropSelectionProps) => {
+  const { t } = useTranslation();
   const [selectedCrop, setSelectedCrop] = useState("");
 
-  const commonCrops = [
-    "Rice", "Wheat", "Cotton", "Sugarcane", "Maize", "Soybean", 
-    "Tomato", "Potato", "Onion", "Chili", "Banana", "Mango"
-  ];
+  // Load the list of crops directly from the JSON file
+  // The { returnObjects: true } option tells i18next to return the array
+  const commonCrops = t('data.commonCrops', { returnObjects: true }) as string[];
 
   const handleCropSelect = (crop: string) => {
     setSelectedCrop(crop);
@@ -29,15 +30,14 @@ const CropSelection = ({ onCropSubmit }: CropSelectionProps) => {
     <div className="py-16">
       <Card className="max-w-2xl mx-auto shadow-card">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl text-primary">Select Your Crop</CardTitle>
+          <CardTitle className="text-2xl text-primary">{t('cropSelection.title')}</CardTitle>
           <p className="text-muted-foreground">
-            What crop are you currently cultivating?
+            {t('cropSelection.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Popular Crops */}
           <div>
-            <h4 className="font-medium mb-3">Popular Crops</h4>
+            <h4 className="font-medium mb-3">{t('cropSelection.popularCrops')}</h4>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {commonCrops.map((crop) => (
                 <Button
@@ -52,12 +52,11 @@ const CropSelection = ({ onCropSubmit }: CropSelectionProps) => {
             </div>
           </div>
 
-          {/* Custom Crop Input */}
           <div>
-            <h4 className="font-medium mb-3">Or enter manually</h4>
+            <h4 className="font-medium mb-3">{t('cropSelection.manualEntry')}</h4>
             <div className="flex gap-3">
               <Input
-                placeholder="Enter your crop name"
+                placeholder={t('cropSelection.placeholder')}
                 value={selectedCrop}
                 onChange={(e) => setSelectedCrop(e.target.value)}
                 className="flex-1 transition-smooth focus:shadow-soft"
@@ -71,7 +70,7 @@ const CropSelection = ({ onCropSubmit }: CropSelectionProps) => {
             className="w-full bg-gradient-field hover:shadow-glow transition-smooth"
             size="lg"
           >
-            OK, Analyze Weather
+            {t('cropSelection.analyze')}
           </Button>
         </CardContent>
       </Card>

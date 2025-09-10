@@ -1,0 +1,97 @@
+{
+  "languageSwitcher": {
+    "button": "Language",
+    "english": "English",
+    "hindi": "हिन्दी (Hindi)",
+    "odia": "ଓଡ଼ିଆ (Odia)"
+  },
+  "welcome": {
+    "title": "CropWeather AI",
+    "subtitle": "Smart weather insights for smarter farming. Get personalized crop recommendations and real-time weather analysis powered by AI.",
+    "getStarted": "Get Started"
+  },
+  "locationInput": {
+    "title": "Your Location",
+    "subtitle": "Tell us where your farm is located",
+    "districtLabel": "District *",
+    "districtPlaceholder": "Enter your district",
+    "stateLabel": "State (Optional)",
+    "statePlaceholder": "Enter your state",
+    "continue": "Continue"
+  },
+  "cropFavorability": {
+    "title": "Crop Recommendations for",
+    "subtitle": "Based on local climate and soil conditions",
+    "favorableTitle": "Most Favorable Crops",
+    "unfavorableTitle": "Least Favorable Crops",
+    "excellent": "Excellent",
+    "challenging": "Challenging",
+    "continue": "OK, Continue"
+  },
+  "cropSelection": {
+    "title": "Select Your Crop",
+    "subtitle": "What crop are you currently cultivating?",
+    "popularCrops": "Popular Crops",
+    "manualEntry": "Or enter manually",
+    "placeholder": "Enter your crop name",
+    "analyze": "OK, Analyze Weather"
+  },
+  "weatherAnalysis": {
+    "title": "Weather Analysis for",
+    "subtitlePart1": "Real-time insights and predictions",
+    "currentWeather": "Current Weather",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "rainfall": "Rainfall",
+    "windSpeed": "Wind Speed",
+    "forecastTitle": "7-Day Weather Forecast",
+    "insightsTitle": "AI-Powered Insights & Recommendations",
+    "actionNeeded": "Action Needed",
+    "good": "Good",
+    "info": "Info",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "day3": "Day 3",
+    "day4": "Day 4",
+    "day5": "Day 5",
+    "day6": "Day 6",
+    "day7": "Day 7",
+    "recommendedAction": "Recommended Action:"
+  },
+  "chatbot": {
+    "title": "AI Farming Assistant",
+    "welcomeMessageWithContext": "Hello! I'm your AI farming assistant. I can help you with crop management, weather insights, and farming best practices for your {{crop}} cultivation in {{location}}. How can I assist you today?",
+    "placeholder": "Ask about farming, weather, or crops..."
+  },
+  "data": {
+    "commonCrops": [
+      "Rice", "Wheat", "Cotton", "Sugarcane", "Maize", "Soybean", "Tomato", "Potato", "Onion", "Chili", "Banana", "Mango"
+    ],
+    "favorabilityReasons": {
+      "rice": "Ideal monsoon conditions",
+      "wheat": "Perfect winter temperature",
+      "cotton": "Good soil drainage",
+      "sugarcane": "High water availability",
+      "apple": "Insufficient cold period",
+      "potato": "High temperature stress",
+      "barley": "Poor soil pH match"
+    },
+    "insights": [
+      {
+        "type": "warning",
+        "message": "Temperature is 3°C higher than usual for this time of year",
+        "action": "Increase irrigation frequency and provide shade if possible"
+      },
+      {
+        "type": "info",
+        "message": "Rain expected tomorrow (5mm) - perfect timing for your rice crop",
+        "action": "Skip irrigation today to avoid overwatering"
+      },
+      {
+        "type": "success",
+        "message": "Humidity levels are optimal for rice growth",
+        "action": "Continue current care routine"
+      }
+    ]
+  }
+}
