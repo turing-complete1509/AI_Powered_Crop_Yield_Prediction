@@ -62,6 +62,7 @@
     "title": "AI Farming Assistant",
     "welcomeMessageWithContext": "Hello! I'm your AI farming assistant. I can help you with crop management, weather insights, and farming best practices for your {{crop}} cultivation in {{location}}. How can I assist you today?",
     "placeholder": "Ask about farming, weather, or crops..."
+    
   },
   "data": {
     "commonCrops": [
