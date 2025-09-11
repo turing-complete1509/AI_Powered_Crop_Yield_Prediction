@@ -25,7 +25,10 @@ interface ChatbotProps {
 }
 
 const sendChatMessage = async (payload: { message: string; location: string }) => {
-  const response = await fetch("http://localhost:8000/api/chat", {
+  // Get the base URL from the environment variable, or use localhost as a fallback
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+  const response = await fetch(`${API_BASE_URL}/api/chat`, { // Use the dynamic URL
     method: "POST",
     headers: {
       "Content-Type": "application/json",
