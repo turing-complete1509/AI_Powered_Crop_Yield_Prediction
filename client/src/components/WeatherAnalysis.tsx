@@ -4,30 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CloudRain, Sun, Thermometer, Droplets, Wind, AlertTriangle, Info } from "lucide-react";
+import { CloudRain, Sun, Thermometer, Droplets, Wind, AlertTriangle } from "lucide-react";
 import { DUMMY_WEATHER_ANALYSIS, type WeatherData } from "@/lib/dummy-data";
 
-// This interface must match the Pydantic model in main.py
+// Define the component's props
 interface WeatherAnalysisProps {
   location: string;
   crop: string;
 }
 
-// This function makes the API call to our backend
+// API call function
 const fetchWeatherAnalysis = async (location: string, crop: string): Promise<WeatherData> => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   const response = await fetch(`${API_BASE_URL}/api/weather-analysis`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ location, crop }),
   });
-
   if (!response.ok) {
     throw new Error("Failed to fetch weather analysis from the server.");
   }
-
   return response.json();
 };
 
@@ -41,8 +37,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
     staleTime: 1000 * 60 * 15,
   });
 
-  // --- NEW FALLBACK LOGIC ---
-  // If there's an error, use the dummy data. Otherwise, use the real data.
+  // If there's an error, use the dummy data. Otherwise, use the live data.
   const displayData = isError ? DUMMY_WEATHER_ANALYSIS : data;
 
   const getInsightIcon = (type: string) => {
@@ -81,7 +76,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
   }
 
   if (!displayData) {
-    return null; // Don't render anything if there's no data yet
+    return null;
   }
 
   return (
@@ -91,14 +86,6 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           <h2 className="text-3xl font-bold text-primary mb-4">{t('weatherAnalysis.title')} {crop}</h2>
           <p className="text-muted-foreground text-lg">{location} • {t('weatherAnalysis.subtitlePart1')}</p>
         </div>
-
-        {isError && (
-          <Alert variant="default" className="bg-amber-50 border-amber-200 text-amber-800 mb-8">
-            <Info className="h-4 w-4 !text-amber-600" />
-            <AlertTitle>Offline Mode</AlertTitle>
-            <AlertDescription>Could not connect to the server. Showing sample data.</AlertDescription>
-          </Alert>
-        )}
 
         {/* All cards below now render using the 'displayData' variable */}
         <Card className="shadow-card">
