@@ -12,7 +12,7 @@ interface CropFavorabilityProps {
   onContinue: () => void;
 }
 
-// API call function
+// API call function to fetch recommendations from your backend
 const fetchCropRecommendations = async (district: string, state?: string): Promise<RecommendationData> => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   const response = await fetch(`${API_BASE_URL}/api/crop-recommendations`, {
@@ -32,11 +32,11 @@ const CropFavorability = ({ district, state, onContinue }: CropFavorabilityProps
   const { data, isLoading, isError } = useQuery({
     queryKey: ['cropRecommendations', district, state],
     queryFn: () => fetchCropRecommendations(district, state),
-    enabled: !!district,
+    enabled: !!district, // Only run the query if a district is provided
   });
   
   // This is the core fallback logic:
-  // If there's an error, use the dummy data. Otherwise, use the real data.
+  // If the API call results in an error, use the dummy data. Otherwise, use the real data.
   const displayData = isError ? DUMMY_RECOMMENDATIONS : data;
 
   if (isLoading) {
@@ -55,7 +55,7 @@ const CropFavorability = ({ district, state, onContinue }: CropFavorabilityProps
   }
   
   if (!displayData) {
-    return null; // Don't render anything if there's no data yet
+    return null; // Don't render anything if there's no data yet (e.g., before the first fetch)
   }
 
   return (
