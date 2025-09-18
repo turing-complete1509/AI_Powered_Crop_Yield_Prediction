@@ -4,63 +4,42 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CloudRain, Sun, Thermometer, Droplets, Wind, AlertTriangle, ServerCrash } from "lucide-react";
+import { CloudRain, Sun, Thermometer, Droplets, Wind, AlertTriangle, ServerCrash, Info } from "lucide-react";
+import { DUMMY_WEATHER_ANALYSIS, type WeatherData } from "@/lib/dummy-data";
 
-// This interface must match the Pydantic model in main.py
-interface WeatherData {
-  currentWeather: {
-    temperature: number;
-    humidity: number;
-    rainfall: number;
-    windSpeed: number;
-    condition: string;
-  };
-  forecast: {
-    day: string;
-    temp: number;
-    rain: number;
-    condition: string;
-  }[];
-  insights: {
-    type: string;
-    message: string;
-    action: string;
-  }[];
-}
+// API call function to fetch data from the backend
+const fetchWeatherAnalysis = async (location: string, crop: string): Promise<WeatherData> => {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const response = await fetch(`${API_BASE_URL}/api/weather-analysis`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ location, crop }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch weather analysis from the server.");
+  }
+  return response.json();
+};
 
+// Define the component's props
 interface WeatherAnalysisProps {
   location: string;
   crop: string;
 }
 
-// This new function will make the API call to our backend
-const fetchWeatherAnalysis = async (location: string, crop: string): Promise<WeatherData> => {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-  const response = await fetch(`${API_BASE_URL}/api/weather-analysis`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ location, crop }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch weather analysis");
-  }
-
-  return response.json();
-};
-
-
 const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
   const { t } = useTranslation();
   
+  // Fetch data using TanStack Query
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['weatherAnalysis', location, crop],
     queryFn: () => fetchWeatherAnalysis(location, crop),
-    enabled: !!(location && crop), // Only run the query if location and crop are available
+    enabled: !!(location && crop),
     staleTime: 1000 * 60 * 15, // Cache data for 15 minutes
   });
+
+  // If there's an error, use the dummy data as a fallback. Otherwise, use the real data.
+  const displayData = isError ? DUMMY_WEATHER_ANALYSIS : data;
 
   // --- UI Helper Functions ---
   const getInsightIcon = (type: string) => {
@@ -72,7 +51,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
     }
   };
   
-  const getWeatherIcon = (condition: string) => {
+  const getWeatherIcon = (condition: string = "") => {
     const lowerCaseCondition = condition.toLowerCase();
     if (lowerCaseCondition.includes("rain")) return <CloudRain className="w-6 h-6 text-sky" />;
     if (lowerCaseCondition.includes("sun") || lowerCaseCondition.includes("clear")) return <Sun className="w-6 h-6 text-accent" />;
@@ -102,51 +81,48 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
     );
   }
 
-  // --- Error State ---
-  if (isError) {
-    return (
-      <div className="py-16 max-w-6xl mx-auto">
-        <Alert variant="destructive">
-          <ServerCrash className="h-4 w-4" />
-          <AlertTitle>Error Fetching Data</AlertTitle>
-          <AlertDescription>
-            There was a problem retrieving the weather analysis from the server. Please try again later.
-            <pre className="mt-2 text-xs">{error.message}</pre>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+  // Handle case where there is no data yet (before loading starts or after error)
+  if (!displayData) {
+    // This can be a more specific error component if you wish
+    return <div className="py-16">No analysis data available.</div>;
   }
 
-  // --- Success State ---
+  // --- Success or Fallback State ---
   return (
     <div className="py-16">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-primary mb-4">
-            {t('weatherAnalysis.title')} {crop}
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            {location} • {t('weatherAnalysis.subtitlePart1')}
-          </p>
+          <h2 className="text-3xl font-bold text-primary mb-4">{t('weatherAnalysis.title')} {crop}</h2>
+          <p className="text-muted-foreground text-lg">{location} • {t('weatherAnalysis.subtitlePart1')}</p>
         </div>
 
-        {/* Current Weather - Now using 'data.currentWeather' */}
+        {/* If there was an error, show the non-intrusive "Offline Mode" warning */}
+        {isError && (
+          <Alert variant="default" className="bg-amber-50 border-amber-200 text-amber-800 mb-8">
+            <Info className="h-4 w-4 !text-amber-600" />
+            <AlertTitle>Offline Mode</AlertTitle>
+            <AlertDescription>
+              Could not connect to the server. Showing sample data.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Current Weather Card */}
         <Card className="shadow-card">
-          <CardHeader><CardTitle className="flex items-center gap-2">{getWeatherIcon(data.currentWeather.condition)} {t('weatherAnalysis.currentWeather')}</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2">{getWeatherIcon(displayData.currentWeather.condition)} {t('weatherAnalysis.currentWeather')}</CardTitle></CardHeader>
           <CardContent><div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center"><div className="text-2xl font-bold text-primary">{data.currentWeather.temperature}°C</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.temperature')}</div></div>
-            <div className="text-center"><div className="text-2xl font-bold text-sky">{data.currentWeather.humidity}%</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.humidity')}</div></div>
-            <div className="text-center"><div className="text-2xl font-bold text-earth">{data.currentWeather.rainfall}mm</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.rainfall')}</div></div>
-            <div className="text-center"><div className="text-2xl font-bold text-muted-foreground">{data.currentWeather.windSpeed} km/h</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.windSpeed')}</div></div>
+            <div className="text-center"><div className="text-2xl font-bold text-primary">{displayData.currentWeather.temperature}°C</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.temperature')}</div></div>
+            <div className="text-center"><div className="text-2xl font-bold text-sky">{displayData.currentWeather.humidity}%</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.humidity')}</div></div>
+            <div className="text-center"><div className="text-2xl font-bold text-earth">{displayData.currentWeather.rainfall}mm</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.rainfall')}</div></div>
+            <div className="text-center"><div className="text-2xl font-bold text-muted-foreground">{displayData.currentWeather.windSpeed} km/h</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.windSpeed')}</div></div>
           </div></CardContent>
         </Card>
 
-        {/* 7-Day Forecast - Now using 'data.forecast' */}
+        {/* 7-Day Forecast Card */}
         <Card className="shadow-card">
           <CardHeader><CardTitle>{t('weatherAnalysis.forecastTitle')}</CardTitle></CardHeader>
           <CardContent><div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-            {data.forecast.map((day, index) => (
+            {displayData.forecast.map((day, index) => (
               <div key={index} className="text-center p-4 bg-gradient-subtle rounded-lg">
                 <div className="text-sm font-medium text-muted-foreground mb-2">{day.day}</div>
                 <div className="flex justify-center mb-2">{getWeatherIcon(day.condition)}</div>
@@ -157,11 +133,11 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           </div></CardContent>
         </Card>
 
-        {/* AI Insights - Now using 'data.insights' */}
+        {/* AI Insights Card */}
         <Card className="shadow-card">
           <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="w-6 h-6 text-accent" /> {t('weatherAnalysis.insightsTitle')}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            {data.insights.map((insight, index) => (
+            {displayData.insights.map((insight, index) => (
               <div key={index} className="p-4 bg-gradient-subtle rounded-lg border-l-4 border-primary">
                 <div className="flex items-start gap-3"><div className="mt-1">{getInsightIcon(insight.type)}</div>
                   <div className="flex-1">
