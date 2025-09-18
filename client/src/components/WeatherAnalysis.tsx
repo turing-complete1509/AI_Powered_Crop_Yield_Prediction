@@ -6,42 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CloudRain, Sun, Thermometer, Droplets, Wind, AlertTriangle } from "lucide-react";
 import { DUMMY_WEATHER_ANALYSIS, type WeatherData } from "@/lib/dummy-data";
 
-// --- TYPE DEFINITIONS ---
 interface WeatherAnalysisProps {
   location: string;
   crop: string;
 }
 
-// --- HELPER COMPONENTS AND FUNCTIONS (FIXED) ---
-
-// This helper now correctly returns a JSX Element
-const getInsightIcon = (type: string): JSX.Element => {
-  switch (type) {
-    case "warning": return <Thermometer className="w-5 h-5 text-warning" />;
-    case "info": return <CloudRain className="w-5 h-5 text-sky" />;
-    case "success": return <Droplets className="w-5 h-5 text-success" />;
-    default: return <AlertTriangle className="w-5 h-5 text-muted-foreground" />;
-  }
-};
-
-// This helper now correctly returns a JSX Element
-const getWeatherIcon = (condition: string = ""): JSX.Element => {
-  const lowerCaseCondition = condition.toLowerCase();
-  if (lowerCaseCondition.includes("rain")) return <CloudRain className="w-6 h-6 text-sky" />;
-  if (lowerCaseCondition.includes("sun") || lowerCaseCondition.includes("clear")) return <Sun className="w-6 h-6 text-accent" />;
-  return <Sun className="w-6 h-6 text-muted-foreground" />;
-};
-
-// This is now a proper, type-safe React component to remove the 'any' error
-const InsightBadge = ({ type, t }: { type: string; t: (key: string) => string }): JSX.Element => {
-  switch (type) {
-    case "warning": return <Badge className="bg-warning/10 text-warning border-warning/20">{t('weatherAnalysis.actionNeeded')}</Badge>;
-    case "success": return <Badge className="bg-success/10 text-success border-success/20">{t('weatherAnalysis.good')}</Badge>;
-    default: return <Badge variant="secondary">{t('weatherAnalysis.info')}</Badge>;
-  }
-};
-
-// --- API CALL FUNCTION ---
 const fetchWeatherAnalysis = async (location: string, crop: string): Promise<WeatherData> => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   const response = await fetch(`${API_BASE_URL}/api/weather-analysis`, {
@@ -55,8 +24,6 @@ const fetchWeatherAnalysis = async (location: string, crop: string): Promise<Wea
   return response.json();
 };
 
-
-// --- MAIN COMPONENT ---
 const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
   const { t } = useTranslation();
   
@@ -67,6 +34,30 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
   });
 
   const displayData = isError ? DUMMY_WEATHER_ANALYSIS : data;
+
+  const getInsightIcon = (type: string) => {
+    switch (type) {
+      case "warning": return <Thermometer className="w-5 h-5 text-warning" />;
+      case "info": return <CloudRain className="w-5 h-5 text-sky" />;
+      case "success": return <Droplets className="w-5 h-5 text-success" />;
+      default: return <AlertTriangle className="w-5 h-5 text-muted-foreground" />;
+    }
+  };
+  
+  const getWeatherIcon = (condition: string = "") => {
+    const lowerCaseCondition = condition.toLowerCase();
+    if (lowerCaseCondition.includes("rain")) return <CloudRain className="w-6 h-6 text-sky" />;
+    if (lowerCaseCondition.includes("sun") || lowerCaseCondition.includes("clear")) return <Sun className="w-6 h-6 text-accent" />;
+    return <Sun className="w-6 h-6 text-muted-foreground" />;
+  };
+
+  const getInsightBadge = (type: string) => {
+    switch (type) {
+      case "warning": return <Badge className="bg-warning/10 text-warning border-warning/20">{t('weatherAnalysis.actionNeeded')}</Badge>;
+      case "success": return <Badge className="bg-success/10 text-success border-success/20">{t('weatherAnalysis.good')}</Badge>;
+      default: return <Badge variant="secondary">{t('weatherAnalysis.info')}</Badge>;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -90,7 +81,6 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           <h2 className="text-3xl font-bold text-primary mb-4">{t('weatherAnalysis.title')} {crop}</h2>
           <p className="text-muted-foreground text-lg">{location} • {t('weatherAnalysis.subtitlePart1')}</p>
         </div>
-
         <Card className="shadow-card">
           <CardHeader><CardTitle className="flex items-center gap-2">{getWeatherIcon(displayData.currentWeather.condition)} {t('weatherAnalysis.currentWeather')}</CardTitle></CardHeader>
           <CardContent><div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -100,7 +90,6 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
             <div className="text-center"><div className="text-2xl font-bold text-muted-foreground">{displayData.currentWeather.windSpeed} km/h</div><div className="text-sm text-muted-foreground">{t('weatherAnalysis.windSpeed')}</div></div>
           </div></CardContent>
         </Card>
-
         <Card className="shadow-card">
           <CardHeader><CardTitle>{t('weatherAnalysis.forecastTitle')}</CardTitle></CardHeader>
           <CardContent><div className="grid grid-cols-1 md:grid-cols-7 gap-4">
@@ -114,7 +103,6 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
             ))}
           </div></CardContent>
         </Card>
-
         <Card className="shadow-card">
           <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="w-6 h-6 text-accent" /> {t('weatherAnalysis.insightsTitle')}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -124,7 +112,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <p className="font-medium text-foreground">{insight.message}</p>
-                      <InsightBadge type={insight.type} t={t} />
+                      {getInsightBadge(insight.type)}
                     </div>
                     <p className="text-sm text-muted-foreground"><strong>{t('weatherAnalysis.recommendedAction')}</strong> {insight.action}</p>
                   </div>
