@@ -60,6 +60,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
     queryFn: () => fetchWeatherAnalysis(location, crop),
     enabled: !!(location && crop), // Only run the query if location and crop are available
     staleTime: 1000 * 60 * 15, // Cache data for 15 minutes
+    refetchOnWindowFocus: false, // <-- ADD THIS LINE
   });
 
   // --- UI Helper Functions ---

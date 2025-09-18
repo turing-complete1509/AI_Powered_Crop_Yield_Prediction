@@ -49,6 +49,7 @@ const CropFavorability = ({ district, state, onContinue }: CropFavorabilityProps
     queryKey: ['cropRecommendations', district, state],
     queryFn: () => fetchCropRecommendations(district, state),
     enabled: !!district, // Only run query if a district is provided
+    refetchOnWindowFocus: false, // <-- ADD THIS LINE
   });
 
   // --- Loading State ---
