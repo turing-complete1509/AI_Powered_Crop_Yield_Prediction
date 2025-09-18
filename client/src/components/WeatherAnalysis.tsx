@@ -3,17 +3,45 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CloudRain, Sun, Thermometer, Droplets, Wind, AlertTriangle } from "lucide-react";
 import { DUMMY_WEATHER_ANALYSIS, type WeatherData } from "@/lib/dummy-data";
 
-// Define the component's props
+// --- TYPE DEFINITIONS ---
 interface WeatherAnalysisProps {
   location: string;
   crop: string;
 }
 
-// API call function
+// --- HELPER COMPONENTS AND FUNCTIONS (FIXED) ---
+
+// This helper now correctly returns a JSX Element
+const getInsightIcon = (type: string): JSX.Element => {
+  switch (type) {
+    case "warning": return <Thermometer className="w-5 h-5 text-warning" />;
+    case "info": return <CloudRain className="w-5 h-5 text-sky" />;
+    case "success": return <Droplets className="w-5 h-5 text-success" />;
+    default: return <AlertTriangle className="w-5 h-5 text-muted-foreground" />;
+  }
+};
+
+// This helper now correctly returns a JSX Element
+const getWeatherIcon = (condition: string = ""): JSX.Element => {
+  const lowerCaseCondition = condition.toLowerCase();
+  if (lowerCaseCondition.includes("rain")) return <CloudRain className="w-6 h-6 text-sky" />;
+  if (lowerCaseCondition.includes("sun") || lowerCaseCondition.includes("clear")) return <Sun className="w-6 h-6 text-accent" />;
+  return <Sun className="w-6 h-6 text-muted-foreground" />;
+};
+
+// This is now a proper, type-safe React component to remove the 'any' error
+const InsightBadge = ({ type, t }: { type: string; t: (key: string) => string }): JSX.Element => {
+  switch (type) {
+    case "warning": return <Badge className="bg-warning/10 text-warning border-warning/20">{t('weatherAnalysis.actionNeeded')}</Badge>;
+    case "success": return <Badge className="bg-success/10 text-success border-success/20">{t('weatherAnalysis.good')}</Badge>;
+    default: return <Badge variant="secondary">{t('weatherAnalysis.info')}</Badge>;
+  }
+};
+
+// --- API CALL FUNCTION ---
 const fetchWeatherAnalysis = async (location: string, crop: string): Promise<WeatherData> => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   const response = await fetch(`${API_BASE_URL}/api/weather-analysis`, {
@@ -27,6 +55,8 @@ const fetchWeatherAnalysis = async (location: string, crop: string): Promise<Wea
   return response.json();
 };
 
+
+// --- MAIN COMPONENT ---
 const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
   const { t } = useTranslation();
   
@@ -34,35 +64,9 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
     queryKey: ['weatherAnalysis', location, crop],
     queryFn: () => fetchWeatherAnalysis(location, crop),
     enabled: !!(location && crop),
-    staleTime: 1000 * 60 * 15,
   });
 
-  // If there's an error, use the dummy data. Otherwise, use the live data.
   const displayData = isError ? DUMMY_WEATHER_ANALYSIS : data;
-
-  const getInsightIcon = (type: string) => {
-    switch (type) {
-      case "warning": return <Thermometer className="w-5 h-5 text-warning" />;
-      case "info": return <CloudRain className="w-5 h-5 text-sky" />;
-      case "success": return <Droplets className="w-5 h-5 text-success" />;
-      default: return <AlertTriangle className="w-5 h-5 text-muted-foreground" />;
-    }
-  };
-  
-  const getWeatherIcon = (condition: string = "") => {
-    const lowerCaseCondition = condition.toLowerCase();
-    if (lowerCaseCondition.includes("rain")) return <CloudRain className="w-6 h-6 text-sky" />;
-    if (lowerCaseCondition.includes("sun") || lowerCaseCondition.includes("clear")) return <Sun className="w-6 h-6 text-accent" />;
-    return <Sun className="w-6 h-6 text-muted-foreground" />;
-  };
-
-  const getInsightBadge = (type: string) => {
-    switch (type) {
-      case "warning": return <Badge className="bg-warning/10 text-warning border-warning/20">{t('weatherAnalysis.actionNeeded')}</Badge>;
-      case "success": return <Badge className="bg-success/10 text-success border-success/20">{t('weatherAnalysis.good')}</Badge>;
-      default: return <Badge variant="secondary">{t('weatherAnalysis.info')}</Badge>;
-    }
-  };
 
   if (isLoading) {
     return (
@@ -87,7 +91,6 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           <p className="text-muted-foreground text-lg">{location} • {t('weatherAnalysis.subtitlePart1')}</p>
         </div>
 
-        {/* All cards below now render using the 'displayData' variable */}
         <Card className="shadow-card">
           <CardHeader><CardTitle className="flex items-center gap-2">{getWeatherIcon(displayData.currentWeather.condition)} {t('weatherAnalysis.currentWeather')}</CardTitle></CardHeader>
           <CardContent><div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -121,7 +124,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <p className="font-medium text-foreground">{insight.message}</p>
-                      {getInsightBadge(insight.type)}
+                      <InsightBadge type={insight.type} t={t} />
                     </div>
                     <p className="text-sm text-muted-foreground"><strong>{t('weatherAnalysis.recommendedAction')}</strong> {insight.action}</p>
                   </div>
