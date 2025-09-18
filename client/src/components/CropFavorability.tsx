@@ -32,7 +32,7 @@ const CropFavorability = ({ district, state, onContinue }: CropFavorabilityProps
   const { data, isLoading, isError } = useQuery({
     queryKey: ['cropRecommendations', district, state],
     queryFn: () => fetchCropRecommendations(district, state),
-    enabled: !!district, // Only run the query if a district is provided
+    enabled: !!district,
   });
   
   // This is the core fallback logic:

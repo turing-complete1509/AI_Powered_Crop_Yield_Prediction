@@ -51,6 +51,7 @@ const fetchWeatherAnalysis = async (location: string, crop: string): Promise<Wea
   return response.json();
 };
 
+
 // --- MAIN COMPONENT ---
 const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
   const { t } = useTranslation();
