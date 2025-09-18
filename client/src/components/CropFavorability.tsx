@@ -35,6 +35,7 @@ const CropFavorability = ({ district, state, onContinue }: CropFavorabilityProps
     enabled: !!district,
   });
   
+  // This is the core fallback logic:
   // If there's an error, use the dummy data. Otherwise, use the real data.
   const displayData = isError ? DUMMY_RECOMMENDATIONS : data;
 
