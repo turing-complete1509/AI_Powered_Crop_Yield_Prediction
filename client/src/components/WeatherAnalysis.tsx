@@ -45,6 +45,7 @@ const fetchWeatherAnalysis = async (location: string, crop: string): Promise<Wea
   });
 
   if (!response.ok) {
+    // This throw will trigger the retry mechanism
     throw new Error("Failed to fetch weather analysis");
   }
 
@@ -60,7 +61,15 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
     queryFn: () => fetchWeatherAnalysis(location, crop),
     enabled: !!(location && crop), // Only run the query if location and crop are available
     staleTime: 1000 * 60 * 15, // Cache data for 15 minutes
-    refetchOnWindowFocus: false, // <-- ADD THIS LINE
+    refetchOnWindowFocus: false,
+
+    // --- NEW RETRY LOGIC ---
+    // Number of times to retry a failed request before showing an error.
+    retry: 3,
+    // Delay between retries, with exponential backoff.
+    // 1st retry: 1s, 2nd: 2s, 3rd: 4s
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+    // --- END OF NEW LOGIC ---
   });
 
   // --- UI Helper Functions ---
@@ -111,13 +120,16 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           <ServerCrash className="h-4 w-4" />
           <AlertTitle>Error Fetching Data</AlertTitle>
           <AlertDescription>
-            There was a problem retrieving the weather analysis from the server. Please try again later.
+            Could not retrieve the weather analysis after multiple attempts. The server may be busy. Please try again later.
             <pre className="mt-2 text-xs">{error.message}</pre>
           </AlertDescription>
         </Alert>
       </div>
     );
   }
+
+  // This check is important to make TypeScript happy, as 'data' can be undefined
+  if (!data) return null;
 
   // --- Success State ---
   return (
@@ -132,7 +144,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           </p>
         </div>
 
-        {/* Current Weather - Now using 'data.currentWeather' */}
+        {/* Current Weather */}
         <Card className="shadow-card">
           <CardHeader><CardTitle className="flex items-center gap-2">{getWeatherIcon(data.currentWeather.condition)} {t('weatherAnalysis.currentWeather')}</CardTitle></CardHeader>
           <CardContent><div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -143,7 +155,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           </div></CardContent>
         </Card>
 
-        {/* 7-Day Forecast - Now using 'data.forecast' */}
+        {/* 7-Day Forecast */}
         <Card className="shadow-card">
           <CardHeader><CardTitle>{t('weatherAnalysis.forecastTitle')}</CardTitle></CardHeader>
           <CardContent><div className="grid grid-cols-1 md:grid-cols-7 gap-4">
@@ -158,7 +170,7 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
           </div></CardContent>
         </Card>
 
-        {/* AI Insights - Now using 'data.insights' */}
+        {/* AI Insights */}
         <Card className="shadow-card">
           <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="w-6 h-6 text-accent" /> {t('weatherAnalysis.insightsTitle')}</CardTitle></CardHeader>
           <CardContent className="space-y-4">
