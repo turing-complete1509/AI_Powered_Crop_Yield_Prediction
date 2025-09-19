@@ -5,9 +5,9 @@
     "hindi": "हिन्दी (Hindi)",
     "odia": "ଓଡ଼ିଆ (Odia)"
   },
-  "welcome": {
-    "title": "CropWeather AI",
-    "subtitle": "Smart weather insights for smarter farming. Get personalized crop recommendations and real-time weather analysis powered by AI.",
+"welcome": {
+    "title": "KrishiMate",
+    "subtitle": "Smart farming insights. Get personalized crop recommendations and real-time weather analysis powered by AI.",
     "getStarted": "Get Started"
   },
   "locationInput": {
