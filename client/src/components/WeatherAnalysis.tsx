@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import ReactMarkdown from 'react-markdown'; // <-- ADDED THIS IMPORT
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -178,11 +179,19 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
               <div key={index} className="p-4 bg-gradient-subtle rounded-lg border-l-4 border-primary">
                 <div className="flex items-start gap-3"><div className="mt-1">{getInsightIcon(insight.type)}</div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <p className="font-medium text-foreground">{insight.message}</p>
-                      {getInsightBadge(insight.type)}
+                    {/* --- THIS IS THE CHANGED SECTION --- */}
+                    {/* The message is now rendered with ReactMarkdown to preserve formatting */}
+                    <div className="prose prose-sm dark:prose-invert max-w-none mb-2">
+                      <ReactMarkdown>{insight.message}</ReactMarkdown>
                     </div>
-                    <p className="text-sm text-muted-foreground"><strong>{t('weatherAnalysis.recommendedAction')}</strong> {insight.action}</p>
+                    {/* The badge and action are styled separately */}
+                    <div className="flex items-center gap-2 mt-3">
+                      {getInsightBadge(insight.type)}
+                      <p className="text-sm text-muted-foreground">
+                        <strong>{t('weatherAnalysis.recommendedAction')}</strong> {insight.action}
+                      </p>
+                    </div>
+                    {/* --- END OF CHANGED SECTION --- */}
                   </div>
                 </div>
               </div>
