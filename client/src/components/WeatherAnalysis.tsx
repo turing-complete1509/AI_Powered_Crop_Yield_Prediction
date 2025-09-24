@@ -49,7 +49,7 @@ interface WeatherAnalysisProps {
 // This new function will make the API call to our backend
 const fetchWeatherAnalysis = async (location: string, crop: string): Promise<WeatherData> => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-  const response = await fetch('${API_BASE_URL}/api/weather-analysis', {
+  const response = await fetch(`${API_BASE_URL}/api/weather-analysis`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
