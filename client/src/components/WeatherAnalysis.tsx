@@ -18,6 +18,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import ErrorBoundary from "./ErrorBoundary";
 
 // This interface must match the Pydantic model in main.py
 interface WeatherData {
@@ -182,78 +183,79 @@ const WeatherAnalysis = ({ location, crop }: WeatherAnalysisProps) => {
             ))}
           </div></CardContent>
         </Card>
+        <ErrorBoundary>
+          <Card className="shadow-card mt-6">
+            <Tabs defaultValue="temp" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="temp">Temperature Trend</TabsTrigger>
+                <TabsTrigger value="rain">Rainfall Trend</TabsTrigger>
+              </TabsList>
 
-        <Card className="shadow-card mt-6">
-          <Tabs defaultValue="temp" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="temp">Temperature Trend</TabsTrigger>
-              <TabsTrigger value="rain">Rainfall Trend</TabsTrigger>
-            </TabsList>
+              {/* Temperature Graph */}
+              <TabsContent value="temp" className="mt-6">
+                <div className="h-80 w-full">
+                  <h3 className="font-semibold text-foreground mb-4">7-Day Temperature Forecast</h3>
+                  {data.forecast.length === 0 ? (
+                    <div className="text-center text-muted-foreground">No forecast data available.</div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data.forecast}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" />
+                        <YAxis stroke="hsl(var(--muted-foreground))" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "hsl(var(--card))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="temp"
+                          stroke="hsl(var(--primary))"
+                          strokeWidth={2}
+                          name="Temperature (°C)"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </TabsContent>
 
-            {/* Temperature Graph */}
-            <TabsContent value="temp" className="mt-6">
-              <div className="h-80 w-full">
-                <h3 className="font-semibold text-foreground mb-4">7-Day Temperature Forecast</h3>
-                {data.forecast.length === 0 ? (
-                  <div className="text-center text-muted-foreground">No forecast data available.</div>
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.forecast}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis stroke="hsl(var(--muted-foreground))" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                        }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="temp"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={2}
-                        name="Temperature (°C)"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-            </TabsContent>
-
-            {/* Rainfall Graph */}
-            <TabsContent value="rain" className="mt-6">
-              <div className="h-80 w-full">
-                <h3 className="font-semibold text-foreground mb-4">7-Day Rainfall Forecast</h3>
-                {data.forecast.length === 0 ? (
-                  <div className="text-center text-muted-foreground">No forecast data available.</div>
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data.forecast}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis stroke="hsl(var(--muted-foreground))" />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                        }}
-                      />
-                      <Bar
-                        dataKey="rain"
-                        fill="hsl(var(--sky))"
-                        radius={[6, 6, 0, 0]}
-                        name="Rainfall (mm)"
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </Card>
+              {/* Rainfall Graph */}
+              <TabsContent value="rain" className="mt-6">
+                <div className="h-80 w-full">
+                  <h3 className="font-semibold text-foreground mb-4">7-Day Rainfall Forecast</h3>
+                  {data.forecast.length === 0 ? (
+                    <div className="text-center text-muted-foreground">No forecast data available.</div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={data.forecast}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" />
+                        <YAxis stroke="hsl(var(--muted-foreground))" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "hsl(var(--card))",
+                            border: "1px solid hsl(var(--border))",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        <Bar
+                          dataKey="rain"
+                          fill="hsl(var(--sky))"
+                          radius={[6, 6, 0, 0]}
+                          name="Rainfall (mm)"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </Card>
+        </ErrorBoundary>
 
         {/* AI Insights */}
         <Card className="shadow-card">
