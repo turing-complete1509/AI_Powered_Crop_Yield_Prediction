@@ -94,5 +94,22 @@
         "action": "Continue current care routine"
       }
     ]
+  },
+  "yieldPrediction": {
+    "title": "Crop Yield Prediction",
+    "subtitle": "Enter your farming details to get a yield estimate based on historical data.",
+    "stateLabel": "State",
+    "statePlaceholder": "e.g., Madhya Pradesh",
+    "districtLabel": "District",
+    "districtPlaceholder": "e.g., Bhopal",
+    "cropLabel": "Crop",
+    "cropPlaceholder": "e.g., Rice",
+    "seasonLabel": "Season",
+    "seasonPlaceholder": "Select a season",
+    "areaLabel": "Area (in Hectares)",
+    "areaPlaceholder": "e.g., 2.5",
+    "calculating": "Calculating...",
+    "predictButton": "Predict Yield",
+    "resultTitle": "Predicted Production"
   }
 }

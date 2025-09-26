@@ -5,6 +5,7 @@ import CropFavorability from "@/components/CropFavorability";
 import CropSelection from "@/components/CropSelection";
 import WeatherAnalysis from "@/components/WeatherAnalysis";
 import Chatbot from "@/components/Chatbot";
+import YieldPrediction from "@/components/YieldPrediction";
 
 type Step = "welcome" | "location" | "favorability" | "selection" | "analysis";
 
@@ -30,6 +31,7 @@ const Index = () => {
 
   const handleGetStarted = () => {
     setCurrentStep("location");
+    setIsChatOpen(true);
     setTimeout(() => scrollToSection(locationRef), 100);
   };
 
@@ -90,6 +92,12 @@ const Index = () => {
                 location={locationString}
                 crop={selectedCrop}
               />
+            </div>
+          )}
+          {/* Yield Prediction */}
+          {currentStep === "analysis" && location && (
+            <div>
+              <YieldPrediction location={location} crop={selectedCrop} />
             </div>
           )}
         </div>
